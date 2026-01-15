@@ -18,6 +18,10 @@ const int level = 0;
 const std::vector<int> inventory{};
 const int money = 0;
 
+const int mob_health = 20;
+const int mob_size_x = 1; //НЕ ИЗМЕНЯТЬ
+const int mob_size_y = 1; //НЕ ИЗМЕНЯТЬ
+
 const char char_player = 'p';
 const char char_mob = 'm';
 const char char_empty = ' ';
@@ -61,7 +65,7 @@ int main() {
             x = rand() % (map.at(0).size() - 2) + 1;
             y = rand() % (map.size() - 2) + 1;
         } while (map.at(y).at(x) != char_empty);
-        mobs.emplace_back(20, x, y, 1, 1);
+        mobs.emplace_back(mob_health, x, y, mob_size_x, mob_size_y);
     }
 
     //находим ближайший путь до игрока
