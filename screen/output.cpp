@@ -1,7 +1,8 @@
 #include "output.h"
 #include <iostream>
+#include <algorithm>
 
-void print(std::vector<std::vector<char>> map, char char_player, player player) {
+void print(std::vector<std::vector<char>> map, char char_player, char char_mob, player player, std::vector<entity> mobs) {
 
     std::cout << "\033[2J\033[1;1H" << std::flush;
 
@@ -17,6 +18,10 @@ void print(std::vector<std::vector<char>> map, char char_player, player player) 
         for (int j = 0; j < size_x; j++) {
             if (j < player_x + player_size_x && j >= player_x && i < player_y + player_size_y && i >= player_y) {
                 std::cout << char_player << char_player;
+            } else if (std::find_if(mobs.begin(), mobs.end(), [i, j](entity& mob) {
+                return (mob.get_position().first == j) && (mob.get_position().second == i);
+            }) != mobs.end()) {
+                std::cout << char_mob << char_mob;
             } else {
                 std::cout << map.at(i).at(j) << map.at(i).at(j);
             }

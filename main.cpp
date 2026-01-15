@@ -1,8 +1,10 @@
 #include <iostream>
+#include <vector>
 #include "screen/getch.h"
 #include "screen/output.h"
 #include "entity/player.h"
 #include "move.h"
+#include "Pathfinder.h"
 
 //параметры при запуске игры
 const int player_health = 10;
@@ -17,6 +19,7 @@ const std::vector<int> inventory{};
 const int money = 0;
 
 const char char_player = 'p';
+const char char_mob = 'm';
 const char char_empty = ' ';
 const std::vector<std::vector<char>> map = {
     {'#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#'},
@@ -42,20 +45,66 @@ const std::vector<std::vector<char>> map = {
     {'#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#'}
 };
 
+std::vector<std::vector<int>> toIntMap() {
+    std::vector<std::vector<int>> new_map(map.size(), std::vector<int>(map.at(0).size(), 0));
+    for (int i = 0; i < map.size(); i++) {
+        for (int j = 0; j < map.at(0).size(); j++) {
+            if (map.at(i).at(j) != char_empty) {
+                new_map.at(i).at(j) = 1;
+            } else {
+                new_map.at(i).at(j) = 0;
+            }
+        }
+    }
+    return new_map;
+}
+
 int main() {
+    srand(time(nullptr));
+
     //создаем игрока
     player player(player_health, player_x, player_y, player_size_x, player_size_y,
         player_effects, ability, level, inventory, money);
 
+    //создаем мобов
+    std::vector<entity> mobs;
+    for (int i = 0; i < rand() % 5 + 1; i++) {
+        int x = 0;
+        int y = 0;
+        do {
+            x = rand() % (map.at(0).size() - 2) + 1;
+            y = rand() % (map.size() - 2) + 1;
+        } while (map.at(y).at(x) != char_empty);
+        mobs.emplace_back(20, x, y, 1, 1);
+    }
+
+    //находим ближайший путь до игрока
+    std::vector<std::vector<int>> int_map = toIntMap();
+    std::vector<std::vector<Node>> path;
+    for (entity& mob : mobs) {
+        std::vector<Node> cur_path = FindPath(int_map, Node(mob.get_position().first, mob.get_position().second),
+    Node(player.get_position().first, player.get_position().second));
+        cur_path.erase(cur_path.begin());
+        path.push_back(cur_path);
+        PrintPath(cur_path);
+    }
+
     //основной цикл
-    print(map, char_player, player);
+    print(map, char_player, char_mob, player, mobs);
     char input = getch();
     while (input != 27) {
         //управление
         move(map, char_empty, player, input);
+        for (int i = 0; i < mobs.size(); i++) {
+            entity& mob = mobs.at(i);
+            if (!path.at(i).empty()) {
+                mob.move(path.at(i).at(0).x, path.at(i).at(0).y);
+                path.at(i).erase(path.at(i).begin());
+            }
+        }
 
         //вывод и повторение
-        print(map, char_player, player);
+        print(map, char_player, char_mob, player, mobs);
         input = getch();
     }
 

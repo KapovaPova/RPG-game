@@ -19,4 +19,6 @@ add_executable(main main.cpp
         screen/output.cpp
         move.h
         move.cpp
+        Pathfinder.h
+        Pathfinder.cpp
 )
