@@ -45,20 +45,6 @@ const std::vector<std::vector<char>> map = {
     {'#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#'}
 };
 
-std::vector<std::vector<int>> toIntMap() {
-    std::vector<std::vector<int>> new_map(map.size(), std::vector<int>(map.at(0).size(), 0));
-    for (int i = 0; i < map.size(); i++) {
-        for (int j = 0; j < map.at(0).size(); j++) {
-            if (map.at(i).at(j) != char_empty) {
-                new_map.at(i).at(j) = 1;
-            } else {
-                new_map.at(i).at(j) = 0;
-            }
-        }
-    }
-    return new_map;
-}
-
 int main() {
     srand(time(nullptr));
 
@@ -79,10 +65,9 @@ int main() {
     }
 
     //находим ближайший путь до игрока
-    std::vector<std::vector<int>> int_map = toIntMap();
     std::vector<std::vector<Node>> path;
     for (entity& mob : mobs) {
-        std::vector<Node> cur_path = FindPath(int_map, Node(mob.get_position().first, mob.get_position().second),
+        std::vector<Node> cur_path = FindPath(map, char_empty, Node(mob.get_position().first, mob.get_position().second),
     Node(player.get_position().first, player.get_position().second));
         cur_path.erase(cur_path.begin());
         path.push_back(cur_path);

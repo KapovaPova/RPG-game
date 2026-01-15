@@ -38,14 +38,14 @@ bool Node::operator==(const Node& other) const
 // A* Pathfinding Algorithm
 // -------------------------
 
-std::vector<Node> FindPath(const std::vector<std::vector<int>>& graph, const Node& start, const Node& goal)
+std::vector<Node> FindPath(const std::vector<std::vector<char>>& graph, char char_empty, const Node& start, const Node& goal)
 {
     // Possible movement directions: up, right, down, left
     const int directionX[] = {-1, 0, 1, 0};
     const int directionY[] = {0, 1, 0, -1};
 
-    int rows = graph.size();
-    int cols = graph[0].size();
+    int rows = graph.size(); // y
+    int cols = graph[0].size(); // x
 
     // Priority queue (min-heap) sorted by lowest f cost
     std::priority_queue<Node, std::vector<Node>, std::greater<Node>> openList;
@@ -60,7 +60,7 @@ std::vector<Node> FindPath(const std::vector<std::vector<int>>& graph, const Nod
     std::vector<std::vector<Node>> parent(rows, std::vector<Node>(cols));
 
     // Initialize start node cost
-    gScore[start.x][start.y] = 0;
+    gScore[start.y][start.x] = 0;
     openList.push(start);
 
     // -------------------------
@@ -80,7 +80,7 @@ std::vector<Node> FindPath(const std::vector<std::vector<int>>& graph, const Nod
             while (!(current == start))
             {
                 path.push_back(current);
-                current = parent[current.x][current.y];
+                current = parent[current.y][current.x];
             }
             path.push_back(start);
 
@@ -90,7 +90,7 @@ std::vector<Node> FindPath(const std::vector<std::vector<int>>& graph, const Nod
         }
 
         // Mark current node as closed (visited)
-        closedList[current.x][current.y] = true;
+        closedList[current.y][current.x] = true;
 
         // Explore all 4 neighboring cells
         for (int i = 0; i < 4; ++i)
@@ -99,19 +99,19 @@ std::vector<Node> FindPath(const std::vector<std::vector<int>>& graph, const Nod
             int newY = current.y + directionY[i];
 
             // Check grid boundaries and walkability
-            if (newX >= 0 && newX < rows && newY >= 0 && newY < cols && graph[newX][newY] == 0)
+            if (newX >= 0 && newX < rows && newY >= 0 && newY < cols && graph[newY][newX] == char_empty)
             {
                 // Skip already processed (closed) cells
-                if (closedList[newX][newY])
+                if (closedList[newY][newX])
                     continue;
 
                 // Tentative g cost (current cost + 1 for movement)
-                int newG = gScore[current.x][current.y] + 1;
+                int newG = gScore[current.y][current.x] + 1;
 
                 // If we found a better path to this neighbor
-                if (newG < gScore[newX][newY])
+                if (newG < gScore[newY][newX])
                 {
-                    gScore[newX][newY] = newG;
+                    gScore[newY][newX] = newG;
 
                     // Compute new neighbor costs
                     Node neighbor(newX, newY);
@@ -120,7 +120,7 @@ std::vector<Node> FindPath(const std::vector<std::vector<int>>& graph, const Nod
                     neighbor.f = neighbor.g + neighbor.h;
 
                     // Record parent (for path reconstruction)
-                    parent[newX][newY] = current;
+                    parent[newY][newX] = current;
 
                     // Add neighbor to open list for further exploration
                     openList.push(neighbor);
