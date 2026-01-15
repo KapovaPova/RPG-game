@@ -71,15 +71,32 @@ int main() {
     Node(player.get_position().first, player.get_position().second));
         cur_path.erase(cur_path.begin());
         path.push_back(cur_path);
-        PrintPath(cur_path);
     }
 
     //основной цикл
     print(map, char_player, char_mob, player, mobs);
     char input = getch();
+    entity last_player_pos;
+    last_player_pos.move(player.get_position().first, player.get_position().second);
     while (input != 27) {
         //управление
         move(map, char_empty, player, input);
+
+        if (player.get_position().first != last_player_pos.get_position().first ||
+            player.get_position().second != last_player_pos.get_position().second) {
+
+            last_player_pos.move(player.get_position().first, player.get_position().second);
+            path.clear();
+            for (entity& mob : mobs) {
+                std::vector<Node> cur_path = FindPath(map, char_empty, Node(mob.get_position().first, mob.get_position().second),
+            Node(player.get_position().first, player.get_position().second));
+                cur_path.erase(cur_path.begin());
+                path.push_back(cur_path);
+            }
+        }
+
+
+        //управление мобов
         for (int i = 0; i < mobs.size(); i++) {
             entity& mob = mobs.at(i);
             if (!path.at(i).empty()) {
