@@ -2,9 +2,22 @@
 #include <iostream>
 #include <algorithm>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 void print(std::vector<std::vector<char>> map, char char_player, char char_mob, player player, std::vector<entity> mobs) {
 
-    std::cout << "\033[2J\033[1;1H" << std::flush;
+    #ifdef _WIN32
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    if (GetConsoleMode(hOut, &dwMode)) {
+        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(hOut, dwMode);
+    }
+    #endif
+
+    std::cout << "\033[2J\033[H" << std::flush;
 
     int size_x = map.at(0).size();
     int size_y = map.size();
